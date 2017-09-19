@@ -3,7 +3,7 @@
 ####################################################
 - id: Lights_PIR_on
   alias: Lights PIR trigger
-  initial_state: 'off'
+  initial_state: 'on'
   trigger:
     - platform: state
       entity_id:
@@ -23,7 +23,7 @@
 
 - id: Lights_PIR_off
   alias: Lights PIR off
-  initial_state: 'off'
+  initial_state: 'on'
   trigger:
     - platform: state
       entity_id:
