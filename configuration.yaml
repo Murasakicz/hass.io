@@ -1,0 +1,130 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret latitude
+  longitude: !secret longitude
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 232
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Prague
+
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+http:
+  # Uncomment this to add a password (recommended!)
+  api_password: !secret api_password
+  # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+  # base_url: example.duckdns.org:8123
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+# Weather prediction
+sensor:
+  - platform: yr
+  - platform: mqtt
+    state_topic: '/ESP_SenorNode_01/teplo/Temperature'
+    name: 'Temperature'
+    unit_of_measurement: '°C'
+    value_template: '{{ value }}'
+  - platform: mqtt
+    state_topic: '/ESP_SenorNode_01/teplo/Humidity'
+    name: 'Humidity'
+    unit_of_measurement: '%'
+    value_template: '{{ value }}' 
+  - platform: mqtt
+    state_topic: '/ESP_SenorNode_01/lum/Lux'
+    name: 'Light'
+    unit_of_measurement: 'Lux'
+    value_template: '{{ value }}'
+  - platform: mqtt
+    state_topic: "/ESP_SenorNode_01/PIR/Switch"
+    name: "Movment"
+    qos: 0
+    payload_on: "1"
+    payload_off: "0"
+    device_class: pir
+    value_template: '{{ value }}'
+
+# Text to speech
+tts:
+  - platform: google
+  
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api_key
+    allowed_chat_ids:
+      - 354665687
+      
+notify:
+  - name: telegram
+    platform: telegram
+    chat_id: 354665687
+  
+mqtt:
+  broker: 192.168.100.20
+  port: 1883
+  client_id: home-assistant-1
+  keepalive: 60
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  
+light:
+  - platform: mqtt
+    name: "office"
+    state_topic: "/QuinLed_1/Led1/status"
+    command_topic: "/QuinLed_1/Led1/switch"
+    optimistic: false
+    qos: 0
+    payload_on: 1
+    payload_off: 0    
+    brightness_command_topic: "/QuinLed_1/Led1/value"
+    brightness_state_topic: "/QuinLed_1/Led1/rvalue"
+    brightness_scale: 1023
+  - platform: mqtt
+    name: "bed"
+    state_topic: "/QuinLed_1/Led2/status"
+    command_topic: "/QuinLed_1/Led2/switch"
+    optimistic: false
+    qos: 0
+    payload_on: 1
+    payload_off: 0
+    brightness_command_topic: "/QuinLed_1/Led2/value"
+    brightness_state_topic: "/QuinLed_1/Led2/rvalue"
+    brightness_scale: 1023
+   
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
