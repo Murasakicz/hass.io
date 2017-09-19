@@ -1,0 +1,7 @@
+  MyRoom:
+    name: Muj pokoj
+    entities:
+      - light.bed
+      - light.office
+      - sensor.temperature
+      - sensor.humidity
