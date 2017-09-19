@@ -1,0 +1,64 @@
+####################################################
+#                  Lights                          #
+####################################################
+- id: Lights_PIR_on
+  alias: Lights PIR trigger
+  initial_state: 'off'
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.movment
+      to: '1'
+  condition:
+    condition: numeric_state
+    entity_id: sensor.light
+    below: 3
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - light.bed
+        - light.office
+      data:
+        brightness_pct: 20
+
+- id: Lights_PIR_off
+  alias: Lights PIR off
+  initial_state: 'off'
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.movment
+      from: '1'
+      to: '0'
+      for:
+        minutes: 1
+  action:
+    - service: light.turn_off
+      entity_id: 
+        - light.bed
+        - light.office
+        
+- alias: Help
+  trigger:
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/help'
+  action:
+    service: notify.telegram
+    data:
+      message: >
+        /status - Lists status of lights in the apartment
+
+        /lumos - Turns on bedroom nightlights
+
+        /nox - turns off bedroom nightlights
+
+- alias: Kitchen - Light state
+  trigger:
+    platform: state
+    entity_id: light.office
+  action:
+    service: notify.telegram
+    data:
+      message: "Kitchen lamp is {{ states('light.office') }}"
