@@ -1,8 +1,8 @@
 ####################################################
 #                  Lights                          #
 ####################################################
-- id: Lights_PIR_on
-  alias: Lights PIR trigger
+- id: Room_Lights_1_on
+  alias: Room_Light1_auto_on
   initial_state: 'on'
   trigger:
     - platform: state
@@ -10,19 +10,49 @@
         - sensor.movment
       to: '1'
   condition:
-    condition: numeric_state
-    entity_id: sensor.light
-    below: 3
+    - condition: numeric_state
+      entity_id: sensor.light
+      below: 3
+    - condition: state
+      entity_id: light.bed
+      state: 'off'
   action:
     - service: light.turn_on
       entity_id: 
         - light.bed
+      data:
+        brightness_pct: 20
+    - service: input_boolean.turn_on
+      data:
+       entity_id: input_boolean.move_l_1
+
+- id: Room_Lights_2_on
+  alias: Room_Light1_auto_on
+  initial_state: 'on'
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.movment
+      to: '1'
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.light
+      below: 3
+    - condition: state
+      entity_id: light.office
+      state: 'off'
+  action:
+    - service: light.turn_on
+      entity_id: 
         - light.office
       data:
         brightness_pct: 20
-
-- id: Lights_PIR_off
-  alias: Lights PIR off
+    - service: input_boolean.turn_on
+      data:
+       entity_id: input_boolean.move_l_2
+       
+- id: Room_Lights_1_off
+  alias: Room_Light1_auto_off
   initial_state: 'on'
   trigger:
     - platform: state
@@ -32,11 +62,40 @@
       to: '0'
       for:
         minutes: 1
+  condition:    
+    - condition: state
+      entity_id: input_boolean.move_l_1
+      state: 'on'
   action:
     - service: light.turn_off
       entity_id: 
         - light.bed
+    - service: input_boolean.turn_off
+      data:
+       entity_id: input_boolean.move_l_1
+       
+- id: Room_Lights_2_off
+  alias: Room_Light2_auto_off
+  initial_state: 'on'
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.movment
+      from: '1'
+      to: '0'
+      for:
+        minutes: 1
+  condition:    
+    - condition: state
+      entity_id: input_boolean.move_l_2
+      state: 'on'
+  action:
+    - service: light.turn_off
+      entity_id: 
         - light.office
+    - service: input_boolean.turn_off
+      data:
+       entity_id: input_boolean.move_l_2
         
 - alias: Help
   trigger:
@@ -53,12 +112,43 @@
         /lumos - Turns on bedroom nightlights
 
         /nox - turns off bedroom nightlights
-
-- alias: Kitchen - Light state
+        
+- alias: Status
   trigger:
-    platform: state
-    entity_id: light.office
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/status'
   action:
     service: notify.telegram
     data:
-      message: "Kitchen lamp is {{ states('light.office') }}"
+      message: >
+        Bed light is {{ states('light.bed') }}
+        
+        Office light is {{ states('light.office') }}
+        
+- alias: Nox
+  trigger:
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/nox'
+  action:
+    - service: light.turn_off
+      entity_id: 
+        - light.office 
+        - light.bed
+        
+- alias: Lumos
+  trigger:
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/lumos'
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - light.office 
+        - light.bed
+        
+

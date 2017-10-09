@@ -5,3 +5,13 @@
       - light.office
       - sensor.temperature
       - sensor.humidity
+
+  3D Printer:
+    name: Prusa i3 Mk2
+    entities:
+      - sensor.prusa_i3_mk2_current_state
+      - sensor.prusa_i3_mk2_actual_bed_temp
+      - sensor.prusa_i3_mk2_target_bed_temp
+      - sensor.prusa_i3_mk2_actual_tool0_temp
+      - sensor.prusa_i3_mk2_target_tool0_temp
+      - sensor.prusa_i3_mk2_job_percentage

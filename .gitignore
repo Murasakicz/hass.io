@@ -4,3 +4,6 @@
 !.gitignore
 secrets.yaml
 known_devices.yaml
+plex.conf
+*.db
+*.log

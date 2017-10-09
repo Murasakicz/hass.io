@@ -10,7 +10,8 @@ homeassistant:
   unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/Prague
-
+  
+  customize: !include customize.yaml 
 # Show links to resources in log and frontend
 #introduction:
 
@@ -75,7 +76,13 @@ sensor:
     payload_on: "1"
     payload_off: "0"
     device_class: pir
-    value_template: '{{ value }}'
+    value_template: '{{ value }}' 
+  - platform: octoprint
+    name: Prusa i3 Mk2
+    monitored_conditions:
+      - Current State
+      - Temperatures
+      - Job Percentage
 
 # Text to speech
 tts:
@@ -104,6 +111,16 @@ device_tracker:
   - platform: owntracks
     max_gps_accuracy: 200
     waypoints: True
+  - platform: mikrotik
+    host: 192.168.100.1
+    username: !secret mikrotik_user
+    password: !secret mikrotik_pass
+    
+octoprint:
+  host: 192.168.100.18
+  api_key: FE17294BEC274C7991FED8AACF3F0011
+  bed: true
+  number_of_tools: 1
   
 light:
   - platform: mqtt
@@ -129,7 +146,26 @@ light:
     brightness_state_topic: "/QuinLed_1/Led2/rvalue"
     brightness_scale: 1023
    
+input_boolean:
+  move_l_1:
+    name: Light actived by move
+    initial: off
+  move_l_2:
+    name: Light actived by move
+    initial: off
+    
+input_select:
+  global:
+    name: Global status
+    options:
+     - Standart
+     - Away
+     - Vacation
+     - Primed
+    initial: Standart
+    icon: mdi:home-circle
 
+   
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
