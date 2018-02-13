@@ -96,6 +96,10 @@
     - service: input_boolean.turn_off
       data:
        entity_id: input_boolean.move_l_2
+       
+####################################################
+#                  Lights - telegram               #
+####################################################
         
 - alias: Help
   trigger:
@@ -151,4 +155,203 @@
         - light.office 
         - light.bed
         
+####################################################
+#                  Lights - budik                  #
+####################################################
+        
+- id: Room_Lights_Bed_wakeup
+  alias: Room_BedLight_wakeup
+  initial_state: 'on'
+  trigger:
+    - platform: mqtt
+      topic: android/broadcast/nexus-5x
+  action:
+    - service_template: >
+        {% if trigger.payload_json.action | string == 'com.urbandroid.sleep.alarmclock.ALARM_ALERT_START' %}
+        light.turn_on
+        {% endif %}
+      entity_id: light.bed
 
+####################################################
+#                  Lights - Control panel          #
+####################################################
+      
+  
+- id: Room_Lights_office_up_starup
+  alias: Room_Lights_office_up_starup
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel0
+    # Optional
+    payload: 'stepUp'
+  condition:
+    - condition: state
+      entity_id: light.office
+      state: 'off'
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - light.office
+      data:
+        brightness: 10
+  
+- id: Room_Lights_office_up
+  alias: Room_Lights_office_up
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel0
+    # Optional
+    payload: 'stepUp'
+  condition:    
+    - condition: state
+      entity_id: light.office
+      state: 'on'
+  action:
+    - service: light.turn_on
+      entity_id: light.office
+      data_template:
+        brightness: >          
+            {% set suggested = states.light.office.attributes.brightness|int + 10 %}
+            {% if suggested < 1023 %}
+            {{ suggested }}
+            {% else %}
+            1023
+            {% endif %}             
+            
+            
+- id: Room_Lights_office_down_end
+  alias: Room_Lights_office_down_end
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel0
+    # Optional
+    payload: 'stepDown'
+  condition:
+    - condition: template
+      value_template: '{{ states.light.office.attributes.brightness | float < 15 }}'
+  action:
+    - service: light.turn_off
+      entity_id: 
+        - light.office
+        
+    
+- id: Room_Lights_office_down
+  alias: Room_Lights_office_down
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel0
+    # Optional
+    payload: 'stepDown'
+  condition:
+    - condition: template
+      value_template: '{{ states.light.office.attributes.brightness | float > 10 }}'
+  action:
+    - service_template: >
+            {% if states.light.office.attributes.brightness|int > 10 %}
+            light.turn_on
+            {% else %}
+            light.turn_off
+            {% endif %}
+      entity_id: light.office
+      data_template:
+        brightness: >
+            {% set suggested = states.light.office.attributes.brightness|int - 10 %}
+            {% if suggested > 0 %}
+            {{ suggested }}
+            {% else %}
+            0
+            {% endif %}
+            
+
+- id: Room_Lights_bed_up_starup
+  alias: Room_Lights_bed_up_starup
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel2
+    # Optional
+    payload: 'stepUp'
+  condition:
+    - condition: state
+      entity_id: light.bed
+      state: 'off'
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - light.bed
+      data:
+        brightness: 10
+  
+- id: Room_Lights_bed_up
+  alias: Room_Lights_bed_up
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel1
+    # Optional
+    payload: 'stepUp'
+  condition:    
+    - condition: state
+      entity_id: light.bed
+      state: 'on'
+  action:
+    - service: light.turn_on
+      entity_id: light.bed
+      data_template:
+        brightness: >          
+            {% set suggested = states.light.bed.attributes.brightness|int + 10 %}
+            {% if suggested < 1023 %}
+            {{ suggested }}
+            {% else %}
+            1023
+            {% endif %}             
+            
+            
+- id: Room_Lights_bed_down_end
+  alias: Room_Lights_bed_down_end
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel1
+    # Optional
+    payload: 'stepDown'
+  condition:
+    - condition: template
+      value_template: '{{ states.light.bed.attributes.brightness | float < 15 }}'
+  action:
+    - service: light.turn_off
+      entity_id: 
+        - light.bed
+        
+    
+- id: Room_Lights_bed_down
+  alias: Room_Lights_bed_down
+  initial_state: 'on'
+  trigger:
+    platform: mqtt
+    topic: Switch/Chanel1
+    # Optional
+    payload: 'stepDown'
+  condition:
+    - condition: template
+      value_template: '{{ states.light.bed.attributes.brightness | float > 10 }}'
+  action:
+    - service_template: >
+            {% if states.light.bed.attributes.brightness|int > 10 %}
+            light.turn_on
+            {% else %}
+            light.turn_off
+            {% endif %}
+      entity_id: light.bed
+      data_template:
+        brightness: >
+            {% set suggested = states.light.bed.attributes.brightness|int - 10 %}
+            {% if suggested > 0 %}
+            {{ suggested }}
+            {% else %}
+            0
+            {% endif %}
